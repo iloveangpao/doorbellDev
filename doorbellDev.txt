@@ -22,7 +22,6 @@ enum Actuator {DELIVERY = 0, VISITOR = 1, BUZZER = 2};
 volatile short status[NUMACTUATOR] = {0,0,0};
 volatile bool alarmActive = false;
 volatile bool motionDetected = false;
-volatile unsigned char reedTick = 0;
 
 WiFiConnection connection(wifi_ssid, wifi_password);
 
@@ -129,8 +128,8 @@ void defaultActuator(){
 
 void ARDUINO_ISR_ATTR reedISR(){
   if((status[VISITOR])) {
-    // buzzer.onBuzzer();
-    // status[BUZZER] = 1;
+    buzzer.onBuzzer();
+    status[BUZZER] = 1;
     alarmActive = true; // Set the flag to activate the timer-based alarm
   }
 }
@@ -165,24 +164,17 @@ void loop() {
     buzzer.setTune();
   }
   buzzer.play();
-
-  
   if(alarmActive){
-    if(!(reed.read())) reedTick ++;
-    else reedTick = 0;
-    if(reedTick > 2) {
-      client.publish("doorbell/reading", "intruder");
-      buzzer.onBuzzer();
-      status[BUZZER] = 1;
-      reedTick = 0;
+    client.publish("doorbell/reading", "intruder");
     alarmActive = 0;
   }
-  Serial.print("visitor:");
+
   Serial.println(status[VISITOR]);
-  Serial.print("pir");
+  Serial.print("cisitor:");
+
   Serial.println(pir.read());
-  Serial.print("reeed");
+  Serial.print("pir");
   Serial.println(reed.read());
-  
+  Serial.print("reeed");
 }
 

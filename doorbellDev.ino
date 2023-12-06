@@ -45,9 +45,11 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.println(length);
 
   if (strcmp(topic, "doorbell/instruction") == 0 && length >= 2) {
+    Serial.println("rec mqtt");
     Serial.println(payload[0]);
     Actuator actuator = static_cast<Actuator>(payload[0]); // Assuming Actuator is an enum
     unsigned char value = payload[1];
+    Serial.println(payload[1]);
     switch (actuator) {
       case DELIVERY:
         doorAction(DELIVERY, value);
@@ -168,6 +170,8 @@ void loop() {
 
   
   if(alarmActive){
+    Serial.println("active");
+    Serial.println(reedTick);
     if(!(reed.read())) reedTick ++;
     else reedTick = 0;
     if(reedTick > 2) {
@@ -175,7 +179,8 @@ void loop() {
       buzzer.onBuzzer();
       status[BUZZER] = 1;
       reedTick = 0;
-    alarmActive = 0;
+      alarmActive = 0;
+  }
   }
   Serial.print("visitor:");
   Serial.println(status[VISITOR]);
@@ -183,6 +188,7 @@ void loop() {
   Serial.println(pir.read());
   Serial.print("reeed");
   Serial.println(reed.read());
+  delay(50);
   
 }
 
